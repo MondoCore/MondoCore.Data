@@ -9,3 +9,13 @@
 /MondoCore.Collections.UnitTests/obj
 /MondoCore.Data/bin
 /MondoCore.Data/obj
+/MondoCore.Data.Memory/bin/Debug/netstandard2.1
+/MondoCore.Data.Memory/obj
+/MondoCore.Data.Memory.UnitTests/bin/Debug/net8.0
+/MondoCore.Data.Memory.UnitTests/obj
+/MondoCore.Data.UnitTests/bin
+/MondoCore.Data.UnitTests/obj
+/MondoCore.Repository.TestHelper/bin
+/MondoCore.Repository.TestHelper/obj
+/MondoCore.Data.Memory.UnitTests/bin/Release/net8.0
+/MondoCore.Data.Memory/bin/Release/netstandard2.1

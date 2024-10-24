@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.11.35303.130
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C606F7DB-888F-4F21-ADA1-CF30296A1A3B}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MondoCore.Data", "MondoCore.Data\MondoCore.Data.csproj", "{845FE67A-EF91-49A8-9D84-12CEC3C770C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MondoCore.Data.UnitTests", "MondoCore.Data.UnitTests\MondoCore.Data.UnitTests.csproj", "{87522314-F0E3-4981-86ED-F06E9BF1C600}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MondoCore.Repository.TestHelper", "MondoCore.Repository.TestHelper\MondoCore.Repository.TestHelper.csproj", "{1C1844D5-62C9-40DF-9E9C-646578BCAE30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MondoCore.Data.Memory", "MondoCore.Data.Memory\MondoCore.Data.Memory.csproj", "{6ED06461-6C25-49EF-BD13-B88FE069E401}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MondoCore.Data.Memory.UnitTests", "MondoCore.Data.Memory.UnitTests\MondoCore.Data.Memory.UnitTests.csproj", "{7F401509-79BB-4E59-BE90-62025C1B5461}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{845FE67A-EF91-49A8-9D84-12CEC3C770C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{845FE67A-EF91-49A8-9D84-12CEC3C770C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{845FE67A-EF91-49A8-9D84-12CEC3C770C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{845FE67A-EF91-49A8-9D84-12CEC3C770C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{87522314-F0E3-4981-86ED-F06E9BF1C600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{87522314-F0E3-4981-86ED-F06E9BF1C600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{87522314-F0E3-4981-86ED-F06E9BF1C600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{87522314-F0E3-4981-86ED-F06E9BF1C600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C1844D5-62C9-40DF-9E9C-646578BCAE30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C1844D5-62C9-40DF-9E9C-646578BCAE30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C1844D5-62C9-40DF-9E9C-646578BCAE30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C1844D5-62C9-40DF-9E9C-646578BCAE30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ED06461-6C25-49EF-BD13-B88FE069E401}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ED06461-6C25-49EF-BD13-B88FE069E401}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ED06461-6C25-49EF-BD13-B88FE069E401}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ED06461-6C25-49EF-BD13-B88FE069E401}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7F401509-79BB-4E59-BE90-62025C1B5461}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F401509-79BB-4E59-BE90-62025C1B5461}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F401509-79BB-4E59-BE90-62025C1B5461}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F401509-79BB-4E59-BE90-62025C1B5461}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1DBAE1BC-4067-4CD7-8FA0-0E87C255A9BA}
+	EndGlobalSection
+EndGlobal

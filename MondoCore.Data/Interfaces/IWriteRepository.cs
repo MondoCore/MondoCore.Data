@@ -10,7 +10,7 @@
  *  Original Author: Jim Lightfoot                                         
  *    Creation Date: 24 Feb 2021                                           
  *                                                                          
- *   Copyright (c) 2021-2024 - Jim Lightfoot, All rights reserved                
+ *   Copyright (c) 2021-2025 - Jim Lightfoot, All rights reserved                
  *                                                                          
  *  Licensed under the MIT license:                                         
  *    http://www.opensource.org/licenses/mit-license.php                    
@@ -36,6 +36,7 @@ namespace MondoCore.Data
         
         Task<bool>   Update(TValue item, Expression<Func<TValue, bool>> guard = null);
         Task<long>   Update(object properties, Expression<Func<TValue, bool>> query);
+        Task<long>   Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query);
         
         Task<bool>   Delete(TID id);
         Task<long>   Delete(Expression<Func<TValue, bool>> guard);

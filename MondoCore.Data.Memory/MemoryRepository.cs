@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using MondoCore.Collections;
 using MondoCore.Common;
+using System.Net.WebSockets;
 
 namespace MondoCore.Data.Memory
 {
@@ -153,6 +154,34 @@ namespace MondoCore.Data.Memory
             }
 
             return Task.FromResult(numUpdated);
+        }
+
+        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query)
+        {
+            var fnGuard = query.Compile();
+            var matched = _items.Where( kv=> fnGuard(kv.Value.Value));
+
+            if(!matched.Any())
+                return 0L;
+
+            long numUpdated = 0;
+
+            foreach(var kv in matched)
+            {
+                var val = kv.Value;
+                var result = await update(val.Value); 
+
+                if(result.Update)
+                { 
+                    _items[kv.Key] = val;
+                    ++numUpdated;
+                }
+
+                if(!result.Continue)
+                    break;
+            }
+
+            return numUpdated;
         }
 
         public Task<bool> Delete(TID id)

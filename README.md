@@ -56,26 +56,34 @@ A collection of interfaces and classes for accessing data from databases and oth
 ### IWriteRepository
 > Write data to a repository (data source)
 
-<a name="writerepo"></a>
 #### Task<TValue> Insert(TValue item)
 > Insert a new object into the repository
 
-<a name="writerepo"></a>
 #### Task Insert(IEnumerable<TValue> items)
 > Insert a list of objects into the repository
 
-<a name="writerepo"></a>
 #### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null)
 > Update a single object with a guard
 
     _writer.Update(customer, (c)=> c.Status == "active");
 
-<a name="writerepo"></a>
 #### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query);       
 > Retrieve a list of objects that match the given query and update the given properties. Returns the number of items updated.
 
     // Change city of all the items with city of "Lower Junction" to "Springfield"
     _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
+
+#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query);       
+> Retrieve a list of objects that match the given query and updates using the given lambda expression to modify properties. Returns the number of items updated.
+
+    // Change city of all the items with city of "Lower Junction" to "Springfield"
+    _writer.Update( (i)=>
+    {
+        i.City = "Springfield",
+
+        return Task.FromResult((true, true));
+    },
+    new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
 
 <a name="writerepo"></a>
 #### Task\<bool\> Delete(TID id)

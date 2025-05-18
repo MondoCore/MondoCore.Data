@@ -290,6 +290,33 @@ namespace MondoCore.Repository.TestHelper
             Assert.AreEqual("Green", result6.Color);
         }
 
+        [TestMethod]
+        public async Task Writer_Update_lambda_succeeds()
+        {
+            Assert.AreEqual(2, await _writer.Update((i)=> 
+            {
+                i.Year = 1970;
+
+                return Task.FromResult((true, true));
+            },
+            (i)=> i.Color == "Blue"));  
+
+            var result1 = await _reader.Get(_idCollection[0]);
+            var result2 = await _reader.Get(_idCollection[1]);
+            var result3 = await _reader.Get(_idCollection[2]);
+            var result4 = await _reader.Get(_idCollection[3]);
+            var result5 = await _reader.Get(_idCollection[4]);
+            var result6 = await _reader.Get(_idCollection[5]);
+
+            Assert.AreEqual(1970, result1.Year);
+            Assert.AreEqual(1972, result2.Year);
+            Assert.AreEqual(1964, result3.Year);
+            Assert.AreEqual(1970, result4.Year);
+            Assert.AreEqual(1914, result5.Year);
+            Assert.AreEqual(1917, result6.Year);
+        }
+
+
         public class Automobile : IPartitionable<TID>
         {
             [JsonPropertyName("id")]

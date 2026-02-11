@@ -10,7 +10,7 @@
  *  Original Author: Jim Lightfoot                                         
  *    Creation Date: 24 Feb 2021                                           
  *                                                                          
- *   Copyright (c) 2021-2025 - Jim Lightfoot, All rights reserved                
+ *   Copyright (c) 2021-2026 - Jim Lightfoot, All rights reserved                
  *                                                                          
  *  Licensed under the MIT license:                                         
  *    http://www.opensource.org/licenses/mit-license.php                    
@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MondoCore.Data
@@ -31,14 +32,14 @@ namespace MondoCore.Data
     /// <typeparam name="TValue">The type of the object stored in the repository</typeparam>
     public interface IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>
     {
-        Task<TValue> Insert(TValue item);
-        Task         Insert(IEnumerable<TValue> items);
+        Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default);
+        Task         Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default);
         
-        Task<bool>   Update(TValue item, Expression<Func<TValue, bool>> guard = null);
-        Task<long>   Update(object properties, Expression<Func<TValue, bool>> query);
-        Task<long>   Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query);
+        Task<bool>   Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default);
+        Task<long>   Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
+        Task<long>   Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
         
-        Task<bool>   Delete(TID id);
-        Task<long>   Delete(Expression<Func<TValue, bool>> guard);
+        Task<bool>   Delete(TID id, CancellationToken cancellationToken = default);
+        Task<long>   Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default);
      }
 }

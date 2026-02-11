@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace MondoCore.Data
@@ -22,7 +22,7 @@ namespace MondoCore.Data
 
         #region IReadRepository
 
-        public async Task<TValue> Get(TID id)
+        public async Task<TValue> Get(TID id, CancellationToken cancellationToken = default)
         {
             try
             { 
@@ -45,12 +45,12 @@ namespace MondoCore.Data
             }
         }
 
-        public IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids)
+        public IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids, CancellationToken cancellationToken = default)
         {
             return _primarySource.Get(ids);
         }
 
-        public  IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query)
+        public  IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
         {
             return _primarySource.Get(query);
         }

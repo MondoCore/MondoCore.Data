@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using MondoCore.Collections;
 using MondoCore.Common;
-using System.Net.WebSockets;
 
 namespace MondoCore.Data.Memory
 {
@@ -31,7 +32,7 @@ namespace MondoCore.Data.Memory
 
         #region IReadRepository
 
-        public Task<TValue> Get(TID id)
+        public Task<TValue> Get(TID id, CancellationToken cancellationToken = default)
         {
             try
             { 
@@ -57,20 +58,30 @@ namespace MondoCore.Data.Memory
             }
         }
 
-        public async IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids)
+        public async IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {            
             foreach(var id in ids)
-                if(_items.ContainsKey(id))
+            { 
+                if(cancellationToken.IsCancellationRequested)
+                    yield break;
+
+                if (_items.ContainsKey(id))
                     yield return await Task.FromResult(_items[id].Value);
+            }
         }
 
-        public async IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query)
+        public async IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var fnGuard = query.Compile();  
             var result = _items.Where( kv=> fnGuard(kv.Value.Value)).Select( kv=> kv.Value.Value );
 
             foreach(var item in result)
+            { 
+                if(cancellationToken.IsCancellationRequested)
+                    yield break;
+
                 yield return await Task.FromResult(item);
+            }
         }
 
         #region IQueryable<>
@@ -98,7 +109,7 @@ namespace MondoCore.Data.Memory
 
         #region IWriteRepository
 
-        public Task<TValue> Insert(TValue item)
+        public Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
         {
             var id = item.GetValue<TID>("Id");
 
@@ -110,10 +121,13 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(item);
         }
 
-        public Task Insert(IEnumerable<TValue> items)
+        public Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
         {
             foreach(var item in items)
             { 
+                if(cancellationToken.IsCancellationRequested)
+                    break;
+
                 var id = item.GetValue<TID>("Id");
 
                 AddEntry(id, item);
@@ -122,7 +136,7 @@ namespace MondoCore.Data.Memory
             return Task.CompletedTask;
         }
 
-        public Task<bool> Update(TValue item, Expression<Func<TValue, bool>> guard = null)
+        public Task<bool> Update(TValue item, Expression<Func<TValue, bool>>? guard = null, CancellationToken cancellationToken = default)
         {
             var id = item.GetValue<TID>("Id");
             var current = _items[id];
@@ -136,7 +150,7 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(true);
         }
 
-        public Task<long> Update(object properties, Expression<Func<TValue, bool>> guard)
+        public Task<long> Update(object properties, Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
         {
             var fnGuard = guard.Compile();
             var matched = _items.Where( kv=> fnGuard(kv.Value.Value));
@@ -156,7 +170,7 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(numUpdated);
         }
 
-        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query)
+        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
         {
             var fnGuard = query.Compile();
             var matched = _items.Where( kv=> fnGuard(kv.Value.Value));
@@ -184,20 +198,25 @@ namespace MondoCore.Data.Memory
             return numUpdated;
         }
 
-        public Task<bool> Delete(TID id)
+        public Task<bool> Delete(TID id, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_items.TryRemove(id, out Entry _));
         }
 
-        public Task<long> Delete(Expression<Func<TValue, bool>> guard)
+        public Task<long> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
         {
             var  fnGuard = guard.Compile();
-            var  matched = _items.Where( kv=> fnGuard(kv.Value.Value));
+            var  matched = _items.Where( kv=> fnGuard(kv.Value!.Value!));
             long numDeleted = 0;
 
             foreach(var kv in matched)
+            {
+                if(cancellationToken.IsCancellationRequested)
+                    break;
+
                 if(_items.TryRemove(kv.Key, out Entry _))
                     ++numDeleted;
+            }
 
             return Task.FromResult(numDeleted);
         }
@@ -245,7 +264,6 @@ namespace MondoCore.Data.Memory
             _items[id] = entry;
             _queue.Enqueue(entry);
         }
-
 
 
         #endregion

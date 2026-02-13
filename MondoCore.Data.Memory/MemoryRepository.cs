@@ -113,7 +113,7 @@ namespace MondoCore.Data.Memory
         {
             var id = item.GetValue<TID>("Id");
 
-            if(id.Equals(default(TID)))
+            if(id?.Equals(default(TID)) ?? true)
                 throw new ArgumentException("Item must have a valid id to add to collection");
 
                 AddEntry(id, item);
@@ -130,7 +130,7 @@ namespace MondoCore.Data.Memory
 
                 var id = item.GetValue<TID>("Id");
 
-                AddEntry(id, item);
+                AddEntry(id!, item);
             }
 
             return Task.CompletedTask;
@@ -139,13 +139,13 @@ namespace MondoCore.Data.Memory
         public Task<bool> Update(TValue item, Expression<Func<TValue, bool>>? guard = null, CancellationToken cancellationToken = default)
         {
             var id = item.GetValue<TID>("Id");
-            var current = _items[id];
+            var current = _items[id!];
 
             if(guard != null)
                if(!guard.Compile()(current.Value))
                    return Task.FromResult(false);
 
-           AddEntry(id, item);
+           AddEntry(id!, item);
 
             return Task.FromResult(true);
         }

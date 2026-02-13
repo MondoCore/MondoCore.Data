@@ -142,7 +142,7 @@ namespace MondoCore.Repository.TestHelper
             var id = _createNewId();
             await _writer.Insert(new Automobile { Id = id, Make = "Chevy", Model = "Camaro" });
 
-            await Assert.ThrowsExceptionAsync<NotFoundException>( async ()=> await _reader.Get(_createNewId()));
+            await Assert.ThrowsAsync<NotFoundException>( async ()=> await _reader.Get(_createNewId()));
         }
 
         [TestMethod]

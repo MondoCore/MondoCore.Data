@@ -44,7 +44,7 @@ namespace MondoCore.Data.UnitTests
         {
             private object _repo = null;
 
-            public IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>  
+            public IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new()
             {
                 if(_repo == null)
                 { 
@@ -58,7 +58,7 @@ namespace MondoCore.Data.UnitTests
                 return _repo as IReadRepository<TID, TValue>;
             }
 
-            public IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID> 
+            public IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new() 
             {
                 return _repo as IWriteRepository<TID, TValue>;
             }

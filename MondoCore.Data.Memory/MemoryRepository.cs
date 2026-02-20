@@ -12,7 +12,7 @@ using MondoCore.Common;
 
 namespace MondoCore.Data.Memory
 {
-    public class MemoryRepository<TID, TValue> : IReadRepository<TID, TValue>, IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>
+    public class MemoryRepository<TID, TValue> : IReadRepository<TID, TValue>, IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>, new()
     {
         private readonly ConcurrentDictionary<TID, Entry> _items = new ConcurrentDictionary<TID, Entry>();
         private readonly ConcurrentQueue<Entry>           _queue = new ConcurrentQueue<Entry>();

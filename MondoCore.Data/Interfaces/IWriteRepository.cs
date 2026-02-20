@@ -30,7 +30,7 @@ namespace MondoCore.Data
     /// </summary>
     /// <typeparam name="TID">The type of the indentifier</typeparam>
     /// <typeparam name="TValue">The type of the object stored in the repository</typeparam>
-    public interface IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>
+    public interface IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>, new()
     {
         Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default);
         Task         Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default);

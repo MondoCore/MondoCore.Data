@@ -10,7 +10,7 @@
  *  Original Author: Jim Lightfoot                                         
  *    Creation Date: 24 Feb 2021                                           
  *                                                                          
- *   Copyright (c) 2021-2024 - Jim Lightfoot, All rights reserved                
+ *   Copyright (c) 2021-2026 - Jim Lightfoot, All rights reserved                
  *                                                                          
  *  Licensed under the MIT license:                                         
  *    http://www.opensource.org/licenses/mit-license.php                    
@@ -24,7 +24,7 @@ namespace MondoCore.Data
     /// </summary>
     public interface IDatabase
     {
-        IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>;
-        IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>;
+        IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new();
+        IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new();
     }
 }

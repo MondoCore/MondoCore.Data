@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace MondoCore.Data
 {
-    public class CachedRepository<TID, TValue> : IReadRepository<TID, TValue> where TValue : IIdentifiable<TID>
+    public class CachedRepository<TID, TValue> : IReadRepository<TID, TValue> where TValue : IIdentifiable<TID>, new()
     {
         private readonly IReadRepository<TID, TValue> _primarySource;
         private readonly IReadRepository<TID, TValue> _cache;

@@ -41,7 +41,7 @@ namespace MondoCore.Data
     /// </summary>
     /// <typeparam name="TID">The type of the indentifier</typeparam>
     /// <typeparam name="TValue">The type of the object stored in the repository</typeparam>
-    public interface IReadRepository<TID, TValue> : IQueryable<TValue> where TValue : IIdentifiable<TID>
+    public interface IReadRepository<TID, TValue> : IQueryable<TValue> where TValue : IIdentifiable<TID>, new()
     {
         Task<TValue>                Get(TID id, CancellationToken cancellationToken = default);
         IAsyncEnumerable<TValue>    Get(IEnumerable<TID> ids, CancellationToken cancellationToken = default);

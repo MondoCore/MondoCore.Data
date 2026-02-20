@@ -101,16 +101,16 @@ A collection of interfaces and classes for accessing data from databases and oth
 ### IDatabase
 > Retrieve read and write repository interfaces from a database. A repository may be a sql database table or a collection in a NoSql database.
 
-#### IReadRepository\<TID, TValue\> GetRepositoryReader\<TID, TValue\>(string repoName, IIdentifierStrategy\<TID\> strategy = null) where TValue : IIdentifiable\<TID\>
+#### IReadRepository\<TID, TValue\> GetRepositoryReader\<TID, TValue\>(string repoName, IIdentifierStrategy\<TID\> strategy = null) where TValue : IIdentifiable\<TID\>, new()
 > Retrieve a reader for a repository with the given name and identifier strategy
 
-#### IWriteRepository\<TID, TValue\> GetRepositoryWriter\<TID, TValue\>(string repoName, IIdentifierStrategy\<TID\> strategy = null) where TValue : IIdentifiable\<TID\>
+#### IWriteRepository\<TID, TValue\> GetRepositoryWriter\<TID, TValue\>(string repoName, IIdentifierStrategy\<TID\> strategy = null) where TValue : IIdentifiable\<TID\>, new()
 > Retrieve a writer for a repository with the given name and identifier strategy
 
-#### (extension) IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, string partitionKey) where TValue : IIdentifiable<TID>
+#### (extension) IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, string partitionKey) where TValue : IIdentifiable<TID>, new()
 > Retrieve a reader for a repository with the given name using a fixed identifier strategy
 
-#### (extension) IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, string partitionKey) where TValue : IIdentifiable<TID>
+#### (extension) IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, string partitionKey) where TValue : IIdentifiable<TID>, new()
 > Retrieve a writer for a repository with the given name using a fixed identifier strategy
 
 ***

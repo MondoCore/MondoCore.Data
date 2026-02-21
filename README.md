@@ -18,6 +18,7 @@ A collection of interfaces and classes for accessing data from databases and oth
     - [CachedRepository](#cachedrepo)
     - [DelimitedIdentifierStrategy](#delimitedidentifierstrategy)
     - [FixedIdentifierStrategy](#fixedidentifierstrategy)
+    - [PropertyIdentifierStrategy](#propertyidentifierstrategy)
     - [PartitionedId](#partitionedid)
     - [NotFoundException](#notfound)
 - [Extensions](#extensions)
@@ -167,6 +168,11 @@ A collection of interfaces and classes for accessing data from databases and oth
 <a name="fixedidentifierstrategy"></a>
 ### FixedIdentifierStrategy\<TID\> : IIdentifierStrategy\<TID\>
 > Represents a strategy where the key passed into a repository reader/writer is a fixed partition key and the key is the identifier alone.
+
+***
+<a name="propertyidentifierstrategy"></a>
+### PropertyIdentifierStrategy\<TID, TVALUE\> : IIdentifierStrategy\<TID, TVALUE\>
+> Represents a strategy where the key passed into a repository reader/writer is a property name from the object.
 
 ***
 <a name="notfound"></a>

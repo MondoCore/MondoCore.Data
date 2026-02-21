@@ -8,7 +8,7 @@
     <Description>Interfaces and extensions for repositories (databases and collections)</Description>
     <RepositoryUrl>https://github.com/jim-lightfoot/MondoCore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.5.2</Version>
+    <Version>2.6.0</Version>
     <Product>MondoCore</Product>
     <Company>MondoCore</Company>
     <Title>MondoCore.Data</Title>
@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <PackageReference Include="MondoCore.Collections" Version="2.5.1" />
+    <PackageReference Include="MondoCore.Common" Version="3.5.2" />
   </ItemGroup>
 
   <ItemGroup>

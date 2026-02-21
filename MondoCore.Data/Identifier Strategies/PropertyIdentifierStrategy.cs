@@ -1,4 +1,5 @@
-﻿using MondoCore.Common;
+﻿using System;
+using MondoCore.Common;
 
 namespace MondoCore.Data
 {
@@ -10,9 +11,16 @@ namespace MondoCore.Data
     {
         private readonly string _propertyName;
 
+        /**************************************************************************/
         public PropertyIdentifierStrategy(string propertyNam)
         {
             _propertyName = propertyNam;
+        }
+
+        /**************************************************************************/
+        public (string Id, string PartitionKey) GetId(TID id)
+        {
+            throw new NotSupportedException("Call GetId with a value");
         }
 
         /**************************************************************************/

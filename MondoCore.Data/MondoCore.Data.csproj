@@ -8,13 +8,15 @@
     <Description>Interfaces and extensions for repositories (databases and collections)</Description>
     <RepositoryUrl>https://github.com/jim-lightfoot/MondoCore</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <Version>2.6.1</Version>
+    <Version>3.0.0</Version>
     <Product>MondoCore</Product>
     <Company>MondoCore</Company>
     <Title>MondoCore.Data</Title>
     <Copyright>© Jim Lightfoot, All Rights Reserved</Copyright>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageTags>mondocore;database;repository</PackageTags>
+    <Nullable>enable</Nullable>
+    <Language>latest</Language>
   </PropertyGroup>
 
   <ItemGroup>

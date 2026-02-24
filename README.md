@@ -14,6 +14,9 @@ A collection of interfaces and classes for accessing data from databases and oth
     - [IIdentifierStrategy](#identifier)
     - [IPartitionable](#partitionable)
     - [IPartitionedId](#ipartitionedid)
+    - [ITable](#ipartitionedid)
+    - [ITableReader](#itablereader)
+    - [ITableWriter](#itablewriter)
 - [Classes](#classes)
     - [CachedRepository](#cachedrepo)
     - [DelimitedIdentifierStrategy](#delimitedidentifierstrategy)
@@ -35,15 +38,15 @@ A collection of interfaces and classes for accessing data from databases and oth
 > Read data from a repository (data source)
 
 <a name="readrepo"></a>
-#### Task\<TValue\> Get(TID id)
+#### Task\<TValue\> Get(TID id, CancellationToken cancellationToken = default)
 > Retrieve a single object with the given id
 
 <a name="readrepo"></a>
-#### IAsyncEnumerable\<TValue\> Get(IEnumerable\<TID\> ids)
+#### IAsyncEnumerable\<TValue\> Get(IEnumerable\<TID\> ids, CancellationToken cancellationToken = default)
 > Retrieve a list of objects with the given ids
 
-<a name="readrepo"></a>
-#### IAsyncEnumerable\<TValue\> Get(Expression<Func<TValue, bool>> query)
+<a name="readrepo"></a>, CancellationToken cancellationToken
+#### IAsyncEnumerable\<TValue\> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
 > Query for a list of objects that match the given expression
 
 
@@ -57,44 +60,42 @@ A collection of interfaces and classes for accessing data from databases and oth
 ### IWriteRepository
 > Write data to a repository (data source)
 
-#### Task<TValue> Insert(TValue item)
+#### Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
 > Insert a new object into the repository
 
-#### Task Insert(IEnumerable<TValue> items)
+#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
 > Insert a list of objects into the repository
 
-#### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null)
+#### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default)
 > Update a single object with a guard
 
-    _writer.Update(customer, (c)=> c.Status == "active");
+   await _writer.Update(customer, (c)=> c.Status == "active");
 
-#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query);       
+#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
 > Retrieve a list of objects that match the given query and update the given properties. Returns the number of items updated.
 
     // Change city of all the items with city of "Lower Junction" to "Springfield"
-    _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
+    await _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
 
-#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query);       
+#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
 > Retrieve a list of objects that match the given query and updates using the given lambda expression to modify properties. Returns the number of items updated.
 
     // Change city of all the items with city of "Lower Junction" to "Springfield"
-    _writer.Update( (i)=>
+    await _writer.Update( (i)=>
     {
         i.City = "Springfield",
 
         return Task.FromResult((true, true));
     },
-    new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
+    (item)=> item.City == "Lower Junction");
 
-<a name="writerepo"></a>
-#### Task\<bool\> Delete(TID id)
+#### Task\<bool\> Delete(TID id, CancellationToken cancellationToken = default)
 > Delete a single object
 
-<a name="writerepo"></a>
-#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard)
+#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
 > Delete a list of objects that match the given query. Returns the number of items deleted.
 
-    _writer.Delete( (item)=> item.Status == "Archived");
+    await _writer.Delete( (item)=> item.Status == "Archived");
 
 
 ***
@@ -140,6 +141,84 @@ A collection of interfaces and classes for accessing data from databases and oth
 
 #### string Id           
 #### string PartitionKey 
+
+***
+<a name="itable"></a>
+### ITable
+> Retrieve read and write interfaces for a table (e.g. Azure storage tables).
+
+#### ITableReader\<TValue\> Reader
+> Retrieve a reader for the table
+
+#### ITableWriter\<TValue\> Writer
+> Retrieve a writer for the table
+
+***
+<a name="itablereader"></a>
+### ITableReader
+> Provides read access to a table (e.g. Azure storage tables).
+
+#### Task\<TValue\> Get(string id, CancellationToken cancellationToken)
+> Retrieve a single object with the given id
+
+#### Task\<TValue\> Get(string id, string? partitionKey, CancellationToken cancellationToken = default)
+> Retrieve a single object with the given id and partition key
+
+#### IAsyncEnumerable\<TValue\> Get(IEnumerable\<TID\> ids, CancellationToken cancellationToken = default)
+> Retrieve a list of objects with the given ids
+
+#### IAsyncEnumerable\<TValue\> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
+> Query for a list of objects that match the given expression
+
+
+    public IAsyncEnumerable<Customer> GetCustomers(string city)
+    {
+        return _reader.Get( (c)=> c.City == city);
+    }
+
+***
+<a name="itablewriter"></a>
+### ITableWriter
+> Provides write access to a table (e.g. Azure storage tables).
+
+#### Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
+> Insert a new record into the table
+
+#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
+> Insert a list of records into the table
+
+#### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default)
+> Update a single record with a guard
+
+    await _writer.Update(customer, (c)=> c.Status == "active");
+
+#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken);       
+> Retrieve a list of recrods that match the given query and update the given properties. Returns the number of records updated.
+
+    // Change city of all the records with city of "Lower Junction" to "Springfield"
+    await _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
+
+#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
+> Retrieve a list of records that match the given query and updates them using the given lambda expression to modify properties. Returns the number of records updated.
+
+    // Change city of all the records with city of "Lower Junction" to "Springfield"
+    await _writer.Update( (i)=>
+    {
+        i.City = "Springfield",
+
+        return Task.FromResult((true, true));
+    },
+    (item)=> item.City == "Lower Junction");
+
+#### Task\<bool\> Delete(TID id, CancellationToken cancellationToken = default)
+> Delete a single object
+
+#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
+> Delete a list of records that match the given query. Returns the number of records deleted.
+
+    await _writer.Delete( (item)=> item.Status == "Archived");
+
+
 
 <br/>
 

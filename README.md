@@ -45,7 +45,7 @@ A collection of interfaces and classes for accessing data from databases and oth
 #### IAsyncEnumerable\<TValue\> Get(IEnumerable\<TID\> ids, CancellationToken cancellationToken = default)
 > Retrieve a list of objects with the given ids
 
-<a name="readrepo"></a>, CancellationToken cancellationToken
+<a name="readrepo"></a>
 #### IAsyncEnumerable\<TValue\> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
 > Query for a list of objects that match the given expression
 
@@ -262,6 +262,11 @@ A collection of interfaces and classes for accessing data from databases and oth
 
 <a name="extensions"></a>
 ## Extensions 
+
+<a name="topartitionedid"></a>
+
+<small>IPartitionedId</small> <b>ToPartitionedId</b><small>(this string id, string partitionKey = null)</small>
+> Creates an IPartitionedId object from a string id and an optional partition key.
 
 <br>
 

@@ -5,7 +5,7 @@
  *      Namespace: MondoCore.Data	                                        
  *           File: ITable.cs                                                
  *      Class(es): ITable                                                   
- *        Purpose: Interface to query a tables                               
+ *        Purpose: Interface to query tables                               
  *                                                                          
  *  Original Author: Jim Lightfoot                                         
  *    Creation Date: 23 Feb 2026                                           

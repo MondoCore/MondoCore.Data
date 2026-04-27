@@ -24,7 +24,7 @@ namespace MondoCore.Data
     /// </summary>
     public interface IDatabase
     {
-        IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new();
-        IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID> strategy = null) where TValue : IIdentifiable<TID>, new();
+        IReadRepository<TID, TValue> GetRepositoryReader<TID, TValue>(string repoName, IIdentifierStrategy<TID>? strategy = null) where TValue : IIdentifiable<TID>, new();
+        IWriteRepository<TID, TValue> GetRepositoryWriter<TID, TValue>(string repoName, IIdentifierStrategy<TID>? strategy = null) where TValue : IIdentifiable<TID>, new();
     }
 }

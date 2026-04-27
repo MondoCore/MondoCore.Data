@@ -1,6 +1,3 @@
-using System.Text.Json.Serialization;
-
-using System.Linq;
 
 using MondoCore.Data.Memory;
 
@@ -10,7 +7,7 @@ namespace MondoCore.Data.UnitTests
     [TestCategory("Unit Tests")]
     public class MemoryTableDelegateTests 
     {
-        private MemoryTableDelegate<Automobile> _delegate = new();
+        private MemoryTableDelegate<string, Automobile> _delegate = new();
 
         private List<string> _idCollection = new List<string>();
 

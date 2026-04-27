@@ -13,22 +13,22 @@ namespace MondoCore.Data.Memory
 {
     /*********************************************************************/
     /*********************************************************************/
-    public class MemoryTable<T> : ITable<T> where T : class, new()
+    public class MemoryTable<TID, TValue> : ITable<TID, TValue> where TValue : class, new()
     {
-        private readonly TableDelegate<T> _delegate = new MemoryTableDelegate<T>();
+        private readonly TableDelegate<TID, TValue> _delegate = new MemoryTableDelegate<TID, TValue>();
 
-        public ITableReader<T> Reader => new TableReader<T>(_delegate);
-        public ITableWriter<T> Writer => new TableWriter<T>(_delegate);
+        public ITableReader<TID, TValue> Reader => new TableReader<TID, TValue>(_delegate);
+        public ITableWriter<TID, TValue> Writer => new TableWriter<TID, TValue>(_delegate);
     }
 
     /*********************************************************************/
     /*********************************************************************/
-    internal class TableReader<T> : ITableReader<T> where T : class, new()
+    internal class TableReader<TID, TValue> : ITableReader<TID, TValue> where TValue : class, new()
     {
-        private readonly TableDelegate<T> _delegate;
+        private readonly TableDelegate<TID, TValue> _delegate;
 
         /*********************************************************************/
-        internal TableReader(TableDelegate<T> tableDelegate)
+        internal TableReader(TableDelegate<TID, TValue> tableDelegate)
         {
             _delegate = tableDelegate;
         }
@@ -36,25 +36,25 @@ namespace MondoCore.Data.Memory
         #region ITableReader
 
         /*********************************************************************/
-        public Task<T> Get(string id, CancellationToken cancellationToken = default)
+        public Task<TValue> Get(TID id, CancellationToken cancellationToken = default)
         {
             return _delegate.Get(id, cancellationToken);
         }
 
         /*********************************************************************/
-        public Task<T> Get(string id, string? partitionKey, CancellationToken cancellationToken = default)
+        public Task<TValue> Get(TID id, string? partitionKey, CancellationToken cancellationToken = default)
         {
             return _delegate.Get(id, partitionKey, cancellationToken);
         }
 
         /*********************************************************************/
-        public IAsyncEnumerable<T> Get(IEnumerable<string> ids, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids, CancellationToken cancellationToken = default)
         {
             return _delegate.Get(ids, cancellationToken);
         }
 
         /*********************************************************************/
-        public IAsyncEnumerable<T> Get(Expression<Func<T, bool>> query, CancellationToken cancellationToken = default)
+        public IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
         {
             return _delegate.Get(query, cancellationToken);
         }
@@ -64,12 +64,12 @@ namespace MondoCore.Data.Memory
 
     /*********************************************************************/
     /*********************************************************************/
-    internal class TableWriter<T> : ITableWriter<T> where T : class, new()
+    internal class TableWriter<TID, TValue> : ITableWriter<TID, TValue> where TValue : class, new()
     {
-        private readonly TableDelegate<T> _delegate;
+        private readonly TableDelegate<TID, TValue> _delegate;
 
         /*********************************************************************/
-        internal TableWriter(TableDelegate<T> tableDelegate)
+        internal TableWriter(TableDelegate<TID, TValue> tableDelegate)
         {
             _delegate = tableDelegate;
         }
@@ -77,45 +77,51 @@ namespace MondoCore.Data.Memory
         #region ITableWriter
 
         /*********************************************************************/
-        public Task<bool> Delete(string id, CancellationToken cancellationToken = default)
+        public Task<bool> Delete(TID id, CancellationToken cancellationToken = default)
         {
             return _delegate.Delete(id, cancellationToken);
         }
 
         /*********************************************************************/
-        public Task<long> Delete(Expression<Func<T, bool>> guard, CancellationToken cancellationToken = default)
+        public Task<long> Delete(Expression<Func<TValue, bool>> guard, int maxItems = 0, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
-            return _delegate.Delete(guard, cancellationToken);
+            return _delegate.Delete(guard, maxItems, cancellationToken, onException);
         }
 
         /*********************************************************************/
-        public Task<T> Insert(T item, CancellationToken cancellationToken = default)
+        public Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
         {
             return _delegate.Insert(item, cancellationToken);
         }
 
         /*********************************************************************/
-        public Task Insert(IEnumerable<T> items, CancellationToken cancellationToken = default)
+        public Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
-            return _delegate.Insert(items, cancellationToken);         
+            return _delegate.Insert(items, cancellationToken, onException);         
         }
 
         /*********************************************************************/
-        public Task<bool> Update(T item, Expression<Func<T, bool>> guard = null, CancellationToken cancellationToken = default)
+        public Task Insert(IAsyncEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
+        {
+            return _delegate.Insert(items, cancellationToken, onException);         
+        }
+
+        /*********************************************************************/
+        public Task<bool> Update(TValue item, Expression<Func<TValue, bool>>? guard = null, CancellationToken cancellationToken = default)
         {
             return _delegate.Update(item, guard, cancellationToken);
         }
 
         /*********************************************************************/
-        public Task<long> Update(object properties, Expression<Func<T, bool>> query, CancellationToken cancellationToken = default)
+        public Task<long> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
-            return _delegate.Update(properties, query, cancellationToken);
+            return _delegate.Update(properties, query, cancellationToken, onException);
         }
 
         /*********************************************************************/
-        public Task<long> Update(Func<T, Task<(bool Update, bool Continue)>> update, Expression<Func<T, bool>> query, CancellationToken cancellationToken = default)
+        public Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
-            return _delegate.Update(update, query, cancellationToken);
+            return _delegate.Update(update, query, cancellationToken, onException);
         }
 
         #endregion

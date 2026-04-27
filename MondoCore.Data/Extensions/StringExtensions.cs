@@ -6,7 +6,7 @@ namespace MondoCore.Data
 {
     public static class StringExtensions
     {
-        public static IPartitionedId ToPartitionedId(this string id, string partitionKey = null)
+        public static IPartitionedId ToPartitionedId(this string id, string? partitionKey = null)
         {
             return new PartitionedId {  Id = id, PartitionKey = partitionKey };
         }

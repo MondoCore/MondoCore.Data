@@ -15,9 +15,9 @@ namespace MondoCore.Data.Memory
 {
     /*********************************************************************/
     /*********************************************************************/
-    internal class MemoryTableDelegate<T> : TableDelegate<T> where T : class, new()
+    internal class MemoryTableDelegate<TID, TValue> : TableDelegate<TID, TValue> where TValue : class, new()
     {
-        private readonly ConcurrentDictionary<string, T> _items = new ConcurrentDictionary<string, T>();
+        private readonly ConcurrentDictionary<TID, TValue> _items = new ConcurrentDictionary<TID, TValue>();
 
         internal MemoryTableDelegate() : base("__bob")
         {
@@ -26,7 +26,7 @@ namespace MondoCore.Data.Memory
         #region Read
 
         /*********************************************************************/
-        public override Task<T> Get(string id, CancellationToken cancellationToken = default)
+        public override Task<TValue> Get(TID id, CancellationToken cancellationToken = default)
         {
             if(!_items.ContainsKey(id))
                 throw new NotFoundException();
@@ -35,7 +35,7 @@ namespace MondoCore.Data.Memory
         }
 
         /*********************************************************************/
-        public override Task<T> Get(string id, string? partitionKey, CancellationToken cancellationToken = default)
+        public override Task<TValue> Get(TID id, string? partitionKey, CancellationToken cancellationToken = default)
         {
             if(!_items.ContainsKey(id))
                 throw new NotFoundException();
@@ -44,7 +44,7 @@ namespace MondoCore.Data.Memory
         }
 
         /*********************************************************************/
-        public override async IAsyncEnumerable<T> Get(Expression<Func<T, bool>> query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public override async IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             var fnQuery = query.Compile();
 
@@ -63,29 +63,29 @@ namespace MondoCore.Data.Memory
         #region Write
 
         /*********************************************************************/
-        public override Task<T> Insert(T item, CancellationToken cancellationToken = default)
+        public override Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
         {
-            _items[item.GetValue<string>("Id")!] = item;
+            _items[item.GetValue<TID>("Id")!] = item;
 
             return Task.FromResult(item);
         }
 
         /*********************************************************************/
-        public override Task<bool> Delete(string id, CancellationToken cancellationToken = default)
+        public override Task<bool> Delete(TID id, CancellationToken cancellationToken = default)
         {
             return Task.FromResult(_items.TryRemove(id, out _));
         }
 
         /*********************************************************************/
-        public override Task<bool> Delete(T item, CancellationToken cancellationToken = default)
+        public override Task<bool> Delete(TValue item, CancellationToken cancellationToken = default)
         {
-            return Delete(item.GetValue<string>("Id")!, cancellationToken);
+            return Delete(item.GetValue<TID>("Id")!, cancellationToken);
         }
 
         /*********************************************************************/
-        protected override Task<bool> Update(T item, string? partitionKey, CancellationToken cancellationToken = default)
+        protected override Task<bool> Update(TValue item, string? partitionKey, CancellationToken cancellationToken = default)
         {
-            var id = item.GetValue<string>("Id")!;
+            var id = item.GetValue<TID>("Id")!;
 
             if(!_items.ContainsKey(id))
                 throw new NotFoundException();

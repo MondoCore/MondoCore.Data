@@ -22,9 +22,9 @@ namespace MondoCore.Data
     /// <summary>
     /// Interface for a table
     /// </summary>
-    public interface ITable<T> where T : class, new()
+    public interface ITable<TID, TValue> where TValue : class, new()
     {
-        ITableReader<T> Reader { get; }
-        ITableWriter<T> Writer { get; }
+        ITableReader<TID, TValue> Reader { get; }
+        ITableWriter<TID, TValue> Writer { get; }
     }
 }

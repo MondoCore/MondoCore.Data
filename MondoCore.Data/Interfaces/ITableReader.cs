@@ -28,11 +28,11 @@ namespace MondoCore.Data
     /// <summary>
     /// Interface to read from a table
     /// </summary>
-    public interface ITableReader<T> where T : class, new()
+    public interface ITableReader<TID, TValue> where TValue : class, new()
     {
-        Task<T>             Get(string id, CancellationToken cancellationToken = default);
-        Task<T>             Get(string id, string? partitionKey, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<T> Get(IEnumerable<string> ids, CancellationToken cancellationToken = default);
-        IAsyncEnumerable<T> Get(Expression<Func<T, bool>> query, CancellationToken cancellationToken = default);
+        Task<TValue>             Get(TID id, CancellationToken cancellationToken = default);
+        Task<TValue>             Get(TID id, string? partitionKey, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids, CancellationToken cancellationToken = default);
+        IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
     }
 }

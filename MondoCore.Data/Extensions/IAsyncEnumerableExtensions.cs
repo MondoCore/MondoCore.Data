@@ -36,7 +36,7 @@ namespace MondoCore.Data
 
             var block = new ActionBlock<Block<T>>(async (payload)=>
             {
-                await fnEach(payload.Index, payload.Data);
+                await fnEach(payload.Index, payload.Data).ConfigureAwait(false);
             }, 
             new ExecutionDataflowBlockOptions { MaxDegreeOfParallelism = maxParallelism, CancellationToken = cancelToken });
 
@@ -47,7 +47,7 @@ namespace MondoCore.Data
                 if(cancelToken.IsCancellationRequested)
                     break;
 
-                await block.SendAsync(new Block<T> { Index = i++, Data = item } );
+                await block.SendAsync(new Block<T> { Index = i++, Data = item } ).ConfigureAwait(false);
             }
 
             block.Complete();

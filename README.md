@@ -63,7 +63,7 @@ A collection of interfaces and classes for accessing data from databases and oth
 #### Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
 > Insert a new object into the repository
 
-#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
+#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
 > Insert a list of objects into the repository
 
 #### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default)
@@ -71,13 +71,13 @@ A collection of interfaces and classes for accessing data from databases and oth
 
    await _writer.Update(customer, (c)=> c.Status == "active");
 
-#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
+#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);       
 > Retrieve a list of objects that match the given query and update the given properties. Returns the number of items updated.
 
     // Change city of all the items with city of "Lower Junction" to "Springfield"
     await _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
 
-#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
+#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);       
 > Retrieve a list of objects that match the given query and updates using the given lambda expression to modify properties. Returns the number of items updated.
 
     // Change city of all the items with city of "Lower Junction" to "Springfield"
@@ -92,10 +92,10 @@ A collection of interfaces and classes for accessing data from databases and oth
 #### Task\<bool\> Delete(TID id, CancellationToken cancellationToken = default)
 > Delete a single object
 
-#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
+#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
 > Delete a list of objects that match the given query. Returns the number of items deleted.
 
-    await _writer.Delete( (item)=> item.Status == "Archived");
+    await _writer.Delete( (item)=> item.Status == "Archived", onException: async (ex)=> await logger.WriteError(ex));
 
 
 ***
@@ -184,7 +184,7 @@ A collection of interfaces and classes for accessing data from databases and oth
 #### Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default)
 > Insert a new record into the table
 
-#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
+#### Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
 > Insert a list of records into the table
 
 #### Task\<bool\> Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default)
@@ -192,13 +192,13 @@ A collection of interfaces and classes for accessing data from databases and oth
 
     await _writer.Update(customer, (c)=> c.Status == "active");
 
-#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken);       
+#### Task\<long\> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken, Func<Exception, Task>? onException = null);       
 > Retrieve a list of recrods that match the given query and update the given properties. Returns the number of records updated.
 
     // Change city of all the records with city of "Lower Junction" to "Springfield"
     await _writer.Update( new { City = "Springfield" }, (item)=> item.City == "Lower Junction");
 
-#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);       
+#### Task\<long\> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);       
 > Retrieve a list of records that match the given query and updates them using the given lambda expression to modify properties. Returns the number of records updated.
 
     // Change city of all the records with city of "Lower Junction" to "Springfield"
@@ -213,10 +213,10 @@ A collection of interfaces and classes for accessing data from databases and oth
 #### Task\<bool\> Delete(TID id, CancellationToken cancellationToken = default)
 > Delete a single object
 
-#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
+#### Task\<long\> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
 > Delete a list of records that match the given query. Returns the number of records deleted.
 
-    await _writer.Delete( (item)=> item.Status == "Archived");
+    await _writer.Delete( (item)=> item.Status == "Archived", onException: async (ex)=> await logger.WriteError(ex));
 
 
 

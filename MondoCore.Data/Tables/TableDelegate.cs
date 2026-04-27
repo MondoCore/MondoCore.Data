@@ -1,6 +1,22 @@
-﻿
-using MondoCore.Common;
-using MondoCore.Data;
+﻿/***************************************************************************
+ *                                                                          
+ *    The MondoCore Libraries  	                                            
+ *                                                                          
+ *      Namespace: MondoCore.Data	                                        
+ *           File: TableDelegate.cs                                                
+ *      Class(es): TableDelegate                                                   
+ *        Purpose: Delegate for table operations
+ *                                                                          
+ *  Original Author: Jim Lightfoot                                         
+ *    Creation Date: 23 Feb 2026                                           
+ *                                                                          
+ *   Copyright (c) 2026 - Jim Lightfoot, All rights reserved                
+ *                                                                          
+ *  Licensed under the MIT license:                                         
+ *    http://www.opensource.org/licenses/mit-license.php                    
+ *                                                                          
+ ****************************************************************************/
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +25,13 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+using MondoCore.Common;
+
 namespace MondoCore.Data.Tables
 {
     /*********************************************************************/
     /*********************************************************************/
-    public abstract class TableDelegate<T> where T : class, new()
+    public abstract class TableDelegate<TID, TValue> where TValue : class, new()
     {
         private readonly string? _partitionKeyField;
 
@@ -25,151 +43,197 @@ namespace MondoCore.Data.Tables
         #region Read
 
         /*********************************************************************/
-        public abstract Task<T> Get(string id, CancellationToken cancellationToken = default);
+        public abstract Task<TValue> Get(TID id, CancellationToken cancellationToken = default);
 
         /*********************************************************************/
-        public abstract Task<T> Get(string id, string? partitionKey, CancellationToken cancellationToken = default);
+        public abstract Task<TValue> Get(TID id, string? partitionKey, CancellationToken cancellationToken = default);
 
         /*********************************************************************/
-        public async IAsyncEnumerable<T> Get(IEnumerable<string> ids, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public async IAsyncEnumerable<TValue> Get(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             foreach(var id in ids)
             { 
                 if(cancellationToken.IsCancellationRequested)
                     yield break;
 
-                yield return await Get(id, cancellationToken);
+                yield return await Get(id, cancellationToken).ConfigureAwait(false);
             }
         }
 
         /*********************************************************************/
-        public abstract IAsyncEnumerable<T> Get(Expression<Func<T, bool>> query, CancellationToken cancellationToken = default);
+        public abstract IAsyncEnumerable<TValue> Get(Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
 
         #endregion
 
         #region Write
 
         /*********************************************************************/
-        public abstract Task<T> Insert(T item, CancellationToken cancellationToken = default);
+        public abstract Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default);
 
         /*********************************************************************/
-        public Task Insert(IEnumerable<T> items, CancellationToken cancellationToken = default)
-        {
-            Parallel.ForEach<T>(items, async (val)=>
-            {
-                if(cancellationToken.IsCancellationRequested)
-                    return;
-
-                await Insert(val, cancellationToken);
-            });
-
-            return Task.CompletedTask;
+        public Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
+        {        
+             return Insert(items.ToAsyncEnumerable(), cancellationToken, onException);
         }
 
         /*********************************************************************/
-        public abstract Task<bool> Delete(string id, CancellationToken cancellationToken = default);
+        public async Task Insert(IAsyncEnumerable<TValue> list, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
+        {        
+            var count  = await ForEach
+            (
+                list, 
+                int.MaxValue, 
+                async (val, cancelToken)=>
+                {
+                    await this.Insert(val, cancellationToken: cancelToken).ConfigureAwait(false);
+
+                    return true;
+                },
+                onException,
+                cancellationToken
+            ).ConfigureAwait(false);
+        }
 
         /*********************************************************************/
-        public abstract Task<bool> Delete(T item, CancellationToken cancellationToken = default);
+        public abstract Task<bool> Delete(TID id, CancellationToken cancellationToken = default);
 
         /*********************************************************************/
-        public virtual async Task<long> Delete(Expression<Func<T, bool>> guard, CancellationToken cancellationToken = default)
+        public abstract Task<bool> Delete(TValue item, CancellationToken cancellationToken = default);
+
+        /*********************************************************************/
+        public virtual async Task<long> Delete(Expression<Func<TValue, bool>> guard, int maxItems = 0, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             var result = Get(guard, cancellationToken);
-            var count  = 0L;
-
-            await result.ParallelForEach<T>(async (index, val)=>
-            {
-                try
-                { 
-                    await this.Delete(val, cancellationToken: cancellationToken);
-
-                    Interlocked.Increment(ref count);
-                }
-                catch
+            var count  = await ForEach
+            (
+                result, 
+                maxItems, 
+                async (val, cancelToken)=>
                 {
-                }
-            },
-            cancelToken: cancellationToken);
+                    await this.Delete(val, cancellationToken: cancelToken).ConfigureAwait(false);
+
+                    return true;
+                },
+                onException,
+                cancellationToken
+            ).ConfigureAwait(false);
 
             return count;
         }
 
         /*********************************************************************/
-        public async Task<bool> Update(T item, Expression<Func<T, bool>>? guard = null, CancellationToken cancellationToken = default)
+        public async Task<bool> Update(TValue item, Expression<Func<TValue, bool>>? guard = null, CancellationToken cancellationToken = default)
         {
-            var partitionKey = item.GetValue<string>(_partitionKeyField ?? "PartitionKey");
-            var id = item.GetValue<string>("Id")!;
+            var partitionKey = item.GetValue<string>(_partitionKeyField ?? "PartitionKey"); // ???
+            var id = item.GetValue<TID>("Id")!;  // ???
 
             if (guard != null)
             { 
-                var currentItem = await Get(id, partitionKey, cancellationToken);
-                var list        = (new List<T> {currentItem}) as IEnumerable<T>;
+                var currentItem = await Get(id, partitionKey, cancellationToken).ConfigureAwait(false);
+                var list        = (new List<TValue> {currentItem}) as IEnumerable<TValue>;
                 var fnGuard     = guard.Compile();
 
-                if(!list.Where(fnGuard).Any())
+                if(!list.Any(fnGuard))
                     return false;
 
                 // Update partition key if it has changed
                 partitionKey = currentItem.GetValue<string>(_partitionKeyField ?? "PartitionKey");
             }
 
-            return await Update(item, partitionKey, cancellationToken);
+            return await Update(item, partitionKey, cancellationToken).ConfigureAwait(false);
         }
 
         /*********************************************************************/
-        protected abstract Task<bool> Update(T item, string? partitionKey, CancellationToken cancellationToken = default);
+        protected abstract Task<bool> Update(TValue item, string? partitionKey, CancellationToken cancellationToken = default);
 
         /*********************************************************************/
-        public virtual async Task<long> Update(object properties, Expression<Func<T, bool>> query, CancellationToken cancellationToken = default)
+        public virtual async Task<long> Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
-            var result = Get(query, cancellationToken: cancellationToken); 
-            var count  = 0L;
-
-            await result.ParallelForEach(async (index, val)=>
-            {
-                try
-                { 
+            var result = Get(query, cancellationToken); 
+            var count  = await ForEach
+            (
+                result, 
+                int.MaxValue, 
+                async (val, cancelToken)=>
+                {
                     if(val.SetValues(properties))
                     { 
-                        await this.Update(val, cancellationToken: cancellationToken);
-
-                        Interlocked.Increment(ref count);
+                        return await this.Update(val, cancellationToken: cancelToken).ConfigureAwait(false);
                     }
-                }
-                catch
-                {
-                }
-            },
-            cancelToken: cancellationToken);
+
+                    return false;
+                },
+                onException,
+                cancellationToken
+            ).ConfigureAwait(false);
 
             return count;
         }
 
         /*********************************************************************/
-        public async Task<long> Update(Func<T, Task<(bool Update, bool Continue)>> fnUpdate, Expression<Func<T, bool>> query, CancellationToken cancellationToken = default)
+        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> fnUpdate, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             var result = Get(query, cancellationToken: cancellationToken); 
-            var count  = 0L;
-            
-            await result.ParallelForEach(async (index, val)=>
-            {
-                try
-                { 
-                    var result = await fnUpdate(val);
+            var count  = await ForEach
+            (
+                result, 
+                int.MaxValue, 
+                async (val, cancelToken)=>
+                {
+                    var result = await fnUpdate(val).ConfigureAwait(false);
 
                     if(result.Update)
                     { 
-                        await this.Update(val, cancellationToken: cancellationToken);
+                        await this.Update(val, cancellationToken: cancelToken).ConfigureAwait(false);
 
-                        Interlocked.Increment(ref count);
+                        return true;
                     }
+
+                    return false;
+                },
+                onException,
+                cancellationToken
+            ).ConfigureAwait(false);
+
+            return count;
+        }
+
+        #endregion
+
+        #region Private
+
+        /*********************************************************************/
+        private async Task<long> ForEach(IAsyncEnumerable<TValue> items, int maxItems, Func<TValue, CancellationToken, Task<bool>>onEach, Func<Exception, Task>? onException, CancellationToken cancellationToken)
+        {
+            var count     = 0L;
+            var cancelSrc = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+
+            maxItems = maxItems > 0 ? maxItems : int.MaxValue;
+
+            await items.ParallelForEach<TValue>(async (index, val)=>
+            {
+                try
+                { 
+                    if(Interlocked.Decrement(ref maxItems) < 0)
+                    { 
+                        cancelSrc.Cancel();
+                        return;
+                    }
+
+                    if(await onEach(val, cancelSrc.Token).ConfigureAwait(false))
+                        Interlocked.Increment(ref count);
                 }
-                catch
+                catch (OperationCanceledException)
                 {
+                    throw;
+                }                
+                catch(Exception ex)
+                {
+                    if(onException != null)
+                        await onException(ex);
                 }
             },
-            cancelToken: cancellationToken);
+            cancelToken: cancelSrc.Token).ConfigureAwait(false);
 
             return count;
         }

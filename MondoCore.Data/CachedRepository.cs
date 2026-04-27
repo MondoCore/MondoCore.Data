@@ -26,15 +26,15 @@ namespace MondoCore.Data
         {
             try
             { 
-                return await _cache.Get(id);
+                return await _cache.Get(id).ConfigureAwait(false);
             }
             catch(NotFoundException)
             {
-                var val = await _primarySource.Get(id);
+                var val = await _primarySource.Get(id).ConfigureAwait(false);
 
                 try
                 { 
-                    await _cacheWriter.Insert(val);
+                    await _cacheWriter.Insert(val).ConfigureAwait(false);
                 }
                 catch
                 {

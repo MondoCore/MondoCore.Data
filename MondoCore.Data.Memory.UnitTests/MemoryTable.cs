@@ -10,7 +10,7 @@ namespace MondoCore.Data.UnitTests
     [TestCategory("Unit Tests")]
     public class MemoryTableTests 
     {
-        private ITable<Automobile> _table = new MemoryTable<Automobile>();
+        private ITable<string, Automobile> _table = new MemoryTable<string, Automobile>();
 
         private List<string> _idCollection = new List<string>();
 

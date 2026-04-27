@@ -15,7 +15,7 @@ namespace MondoCore.Data
 
         public (string Id, string PartitionKey) GetId(TID id)
         {
-            return (id.ToString(), _partitionKey);
+            return (id!.ToString(), _partitionKey);
         }
     }
 }

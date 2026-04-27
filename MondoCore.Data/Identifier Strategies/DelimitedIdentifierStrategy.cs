@@ -15,7 +15,7 @@ namespace MondoCore.Data
 
         public (string Id, string PartitionKey) GetId(TID id)
         {
-            var parts = id.ToString().Split(_separator);
+            var parts = id!.ToString().Split(_separator);
 
             return (parts[0], parts[1]);
         }

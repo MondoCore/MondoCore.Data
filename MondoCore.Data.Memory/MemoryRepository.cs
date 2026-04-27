@@ -121,7 +121,7 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(item);
         }
 
-        public Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default)
+        public Task Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             foreach(var item in items)
             { 
@@ -150,7 +150,7 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(true);
         }
 
-        public Task<long> Update(object properties, Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
+        public Task<long> Update(object properties, Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             var fnGuard = guard.Compile();
             var matched = _items.Where( kv=> fnGuard(kv.Value.Value));
@@ -170,7 +170,7 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(numUpdated);
         }
 
-        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default)
+        public async Task<long> Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             var fnGuard = query.Compile();
             var matched = _items.Where( kv=> fnGuard(kv.Value.Value));
@@ -203,15 +203,17 @@ namespace MondoCore.Data.Memory
             return Task.FromResult(_items.TryRemove(id, out Entry _));
         }
 
-        public Task<long> Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default)
+        public Task<long> Delete(Expression<Func<TValue, bool>> guard, int maxItems = 0, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null)
         {
             var  fnGuard = guard.Compile();
             var  matched = _items.Where( kv=> fnGuard(kv.Value!.Value!));
             long numDeleted = 0;
 
-            foreach(var kv in matched)
+            maxItems = maxItems > 0 ? maxItems : int.MaxValue;
+
+            foreach (var kv in matched)
             {
-                if(cancellationToken.IsCancellationRequested)
+                if(cancellationToken.IsCancellationRequested || --maxItems < 0)
                     break;
 
                 if(_items.TryRemove(kv.Key, out Entry _))

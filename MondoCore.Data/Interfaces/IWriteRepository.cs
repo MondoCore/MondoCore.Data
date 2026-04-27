@@ -28,18 +28,18 @@ namespace MondoCore.Data
     /// <summary>
     /// Provides an interface for all modification operations to a repository
     /// </summary>
-    /// <typeparam name="TID">The type of the indentifier</typeparam>
+    /// <typeparam name="TID">The type of the identifier</typeparam>
     /// <typeparam name="TValue">The type of the object stored in the repository</typeparam>
     public interface IWriteRepository<TID, TValue> where TValue : IIdentifiable<TID>, new()
     {
         Task<TValue> Insert(TValue item, CancellationToken cancellationToken = default);
-        Task         Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default);
+        Task         Insert(IEnumerable<TValue> items, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);
         
-        Task<bool>   Update(TValue item, Expression<Func<TValue, bool>> guard = null, CancellationToken cancellationToken = default);
-        Task<long>   Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
-        Task<long>   Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default);
+        Task<bool>   Update(TValue item, Expression<Func<TValue, bool>>? guard = null, CancellationToken cancellationToken = default);
+        Task<long>   Update(object properties, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);
+        Task<long>   Update(Func<TValue, Task<(bool Update, bool Continue)>> update, Expression<Func<TValue, bool>> query, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);
         
         Task<bool>   Delete(TID id, CancellationToken cancellationToken = default);
-        Task<long>   Delete(Expression<Func<TValue, bool>> guard, CancellationToken cancellationToken = default);
-     }
+        Task<long>   Delete(Expression<Func<TValue, bool>> guard, int maxItems = 0, CancellationToken cancellationToken = default, Func<Exception, Task>? onException = null);
+    }
 }
